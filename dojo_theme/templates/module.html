@@ -6,9 +6,7 @@
 {{ super() }}
 
 <style>
-html {
-  scroll-behavior: smooth;
-}
+
 .scroll-disabled {
   overflow: hidden;
 }
@@ -306,5 +304,31 @@ html {
 <script defer src="{{ url_for('views.themes', path='js/dojo/challenges.js') }}"></script>
 <script defer onload="loadScoreboard(30, 1);" src="{{ url_for('views.themes', path='js/dojo/scoreboard.js') }}"></script>
 <script defer src="{{ url_for('views.themes', path='js/dojo/actionbar.js') }}"></script>
-
+{% if scroll_to_challenge %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(() => {
+    const el = document.querySelector('[data-challenge-id="{{ scroll_to_challenge }}"]');
+    if (!el) return;
+    const idx = el.getAttribute('data-challenge-index');
+    const btn = idx && document.getElementById(`challenges-header-button-${idx}`);
+    
+    const scrollToChallenge = () => {
+      const rect = el.getBoundingClientRect();
+      const offsetTop = window.pageYOffset + rect.top - 60;
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    };
+    if (btn && btn.getAttribute('aria-expanded') !== 'true') {
+      btn.click();
+      setTimeout(scrollToChallenge, 400);
+    } else {
+      scrollToChallenge();
+    }
+  }, 500);
+});
+</script>
+{% endif %}
 {% endblock %}
