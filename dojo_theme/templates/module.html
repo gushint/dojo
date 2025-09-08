@@ -6,6 +6,9 @@
 {{ super() }}
 
 <style>
+html {
+  scroll-behavior: smooth;
+}
 .scroll-disabled {
   overflow: hidden;
 }
@@ -303,4 +306,66 @@
 <script defer src="{{ url_for('views.themes', path='js/dojo/challenges.js') }}"></script>
 <script defer onload="loadScoreboard(30, 1);" src="{{ url_for('views.themes', path='js/dojo/scoreboard.js') }}"></script>
 <script defer src="{{ url_for('views.themes', path='js/dojo/actionbar.js') }}"></script>
+{% if scroll_to_challenge %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const targetElement = document.querySelector('[data-challenge-id="{{ scroll_to_challenge }}"]');
+        if (targetElement) {
+            console.log('Found target element:', targetElement);
+            
+            // Get the challenge index from the target element
+            const challengeIndex = targetElement.getAttribute('data-challenge-index');
+            console.log('Challenge index:', challengeIndex);
+            
+            if (challengeIndex) {
+                // Find the accordion button using the pattern from your macro
+                const accordionButton = document.getElementById(`challenges-header-button-${challengeIndex}`);
+                console.log('Found accordion button:', accordionButton);
+                
+                if (accordionButton) {
+                    // Check if the accordion is already open
+                    const isExpanded = accordionButton.getAttribute('aria-expanded') === 'true';
+                    console.log('Is expanded:', isExpanded);
+                    
+                    if (!isExpanded) {
+                        console.log('Clicking accordion button to open');
+                        accordionButton.click();
+                        
+                        // Wait for the collapse animation to complete
+                        setTimeout(() => {
+                            console.log('Scrolling to target');
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'  // Changed from 'start' to 'center'
+                            });
+                        }, 400);
+                    } else {
+                        console.log('Already expanded, just scrolling');
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'  // Changed from 'start' to 'center'
+                        });
+                    }
+                } else {
+                    console.log('Accordion button not found, just scrolling');
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'  // Changed from 'start' to 'center'
+                    });
+                }
+            } else {
+                console.log('No challenge index found, just scrolling');
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'  // Changed from 'start' to 'center'
+                });
+            }
+        } else {
+            console.log('Target element not found for challenge:', '{{ scroll_to_challenge }}');
+        }
+    }, 500);
+});
+</script>
+{% endif %}
 {% endblock %}
